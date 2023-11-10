@@ -1,3 +1,13 @@
+<head>
+  <title>Title of the document</title>
+  <style>
+    .code-style {
+      background-color: black;
+      color: white;
+    }
+  </style>
+</head>
+<body class = "code-style">
 # 1. SSRS Sales Report Project
 > ## a. Table of Contents
 
@@ -23,3 +33,4 @@
 >> 1. Bill To Address
 >> 1. Bill To Postal Code
 >> 1. Bill To Location Type
+</body>
