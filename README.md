@@ -110,7 +110,7 @@ Script Overview
 
 
 <details>
-<summary>Wildcard Items Code Snippet</summary>
+<summary>Wildcard Products Code Snippet</summary>
 
 ```sql
 
@@ -602,10 +602,29 @@ This is a picture of the report parameters when they are initally loaded with th
 
 ## i. Format the report.
 
-![This is a picture of the out put of the report with the inputs from the parameters above.](images/ReportOutputSSRS.jpg)
+![This is a picture of the output of the report with the inputs from the parameters above.](images/ReportOutputSSRS.jpg)
 
-This is a picture of the out put of the report with the inputs from the parameters above.
+This is a picture of the output of the report with the inputs from the parameters above.
 
 ## j. Publish the Report.
 
 # 4. Results
+All the analysts are now able to search for and find the sales order data that they need without having to know how to write any SQL.
+
+# 5. How to Run the Report on Your Computer
+1. Install a SQL Server instance on your computer. This is a database server that will a
+2. Install the Adventureworks2019.bak file from microsoft. This database backup contains the data that the SSRS report pulls from.
+3. Install Power BI Rerport Builder, Report Builder, or Visual Studio with the Data Storage Processing Toolset and the Microsoft Reporting Services Extension. This will allow you to open and edit .rdl files.
+4. Download the .rdl file.
+
+[](/Multi%20Product%20Partial%20Product%20Search%20on%20Sales%20Order%20Data%20SP.sql)
+
+5. Connect to the database.
+
+# 6. Technical Concepts Used
+
+SQL Server - stored procedures, window functions, temp tables, variables, parameters, while loops, text functions, wildcard searches, joins, handling null values, data types, aliases, and subqueries.
+
+SSRS - parameters,  embedded data sources, embedded datasets, default values, tablix static header properties, report formatting, built in fields, stored procedures, and exporting.
+
+# 7. How to setup the report on your computer
