@@ -616,8 +616,7 @@ All the analysts are now able to search for and find the sales order data that t
 2. Install the Adventureworks2019.bak file from microsoft. This database backup contains the data that the SSRS report pulls from.
 3. Install Power BI Rerport Builder, Report Builder, or Visual Studio with the Data Storage Processing Toolset and the Microsoft Reporting Services Extension. This will allow you to open and edit .rdl files.
 4. Download the .rdl file.
-
-[](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl)
+[link](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl)
 
 5. Connect to the database.
 
