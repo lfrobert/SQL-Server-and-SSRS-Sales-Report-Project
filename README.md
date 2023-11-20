@@ -1,7 +1,8 @@
 
 
 # 1. SQL Server & SSRS Sales Report Project
-> ## a. Table of Contents
+Important notes: This project requires you to install software on your computer if you want run the reports yourself. It is not necessary to install anything in order to understand this project becuase this README document will explain everything. 
+
 
 # 2. Business Case
 > ## a. Business Overview
