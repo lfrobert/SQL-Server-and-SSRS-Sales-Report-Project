@@ -31,7 +31,7 @@
 >>> 1. Bill To Location Type
 > 3. Use an embedded data source connection to connect the AdventureWorks2019 database.
 > 4. Use a stored procedure that also can be executed using Sql Server Management Studio as the SSRS Report Dataset. This will ensure that the SQL logic isn't stored in the .rdl file and allow for future reports to be able to use that same SQL logic.
-> 5. Create a SQL query with variables that mimics the stored procedure so that analysts with read only SQL access to the AdventureWorks2019 database can understand the logic of the stored procedure in a step by step manner. The query should return a results window in SSMS for each of the steps in the process so that other analysts can get an idea of how the stroed procedure works.
+> 5. Create a SQL query with variables that mimics the stored procedure so that analysts with read only SQL access to the AdventureWorks2019 database can understand the logic of the stored procedure in a step by step manner. The query should return a results window in SSMS for each of the steps in the process so that other analysts can get an idea of how the stored procedure works.
 # 3. Project Steps
 ## a. Dig through the AdventureWorks2019 database and learn how the data is structured and organized.
 
@@ -593,37 +593,76 @@ This is a picture of all the report parameters showing changes to the parameter 
 This is a picture of the added default value for the Start Date parameter.
 
 ![This is a picture of the added default value for the Ship To and Bill To parameters.](images/WildcardAddressDefaultValue.jpg)
-
 This is a picture of the added default value for the Ship To and Bill To parameters.
 
-![This is a picture of the report parameters when they are initally loaded with their default values if there are any.](images/ReportParametersShowingDefaultValues.jpg)
 
+![This is a picture of the report parameters when they are initally loaded with their default values if there are any.](images/ReportParametersShowingDefaultValues.jpg)
 This is a picture of the report parameters when they are initally loaded with their default values if there are any.
 
 ## i. Format the report.
 
 ![This is a picture of the output of the report with the inputs from the parameters above.](images/ReportOutputSSRS.jpg)
-
 This is a picture of the output of the report with the inputs from the parameters above.
 
-## j. Publish the Report.
+## j. Publish the Report to Report Server Web Portal.
+
+![This is a picture of the SSRS report uploaded to the on premises Report Server Web Portal.](images/WebPortalDirectory.jpg)
+This is a picture of the SSRS report uploaded to the on premises Report Server Web Portal.
+
+![This is a picture of the output of the report in the web portal.](images/WebPortalResults.jpg)
+This is a picture of the output of the report in the web portal.
+
+## k. Create SSMS query that displays the logic of the stored procedure.
+
+![This is a picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works.](images/SSMS%20query%20steps%20for%20SP.jpg)
+This is a picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works.
+
+[Query Link](/Multi_Product_Partial_Search_for_Sales_Data_SSMS_Query_AW_2019.sql)
 
 # 4. Results
-All the analysts are now able to search for and find the sales order data that they need without having to know how to write any SQL.
+All the analysts & managers are now able to search for and find the sales order data that they need without having to know how to write any SQL. They will be able to quickly export the Sales Order data with product and customer information into Excel and create pivot tables from this data. This will prevent IT from having to give junior analysts SQL access and will ensure that the data being pulled by the analysts is both correct and consistent. It will also save the comapny 1000's of hours of labor by preventing the analysts from writing redundant and potentially inaccurate SQL queries for their sales reports.
 
-# 5. How to Run the Report on Your Computer
-1. Install a SQL Server instance on your computer. This is a database server that will a
-2. Install the Adventureworks2019.bak file from microsoft. This database backup contains the data that the SSRS report pulls from.
-3. Install Power BI Rerport Builder, Report Builder, or Visual Studio with the Data Storage Processing Toolset and the Microsoft Reporting Services Extension. This will allow you to open and edit .rdl files.
-4. Download the .rdl file.
-[link](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl)
+![This is a picture of the output of the SSRS report exported into excel.](images/ExcelSalesDataRawData.jpg)
 
-5. Connect to the database.
+This is a picture of the output of the SSRS report exported into excel.
 
-# 6. Technical Concepts Used
+![This is a picture of the output of the SSRS report thrown into a pivot table that shows Product Revenue for each Ship To Location. This would be an example of a report that a junior analyst might make using the raw data from the SSRS report export.](images/ExcelSalesDataPivot.jpg)
+
+This is a picture of the output of the SSRS report thrown into a pivot table that shows Product Revenue for each Ship To Location. This would be an example of a report that a junior analyst might make using the raw data from the SSRS report export.
+
+# 5. Technical Concepts Used
 
 SQL Server - stored procedures, window functions, temp tables, variables, parameters, while loops, text functions, wildcard searches, joins, handling null values, data types, aliases, and subqueries.
 
 SSRS - parameters,  embedded data sources, embedded datasets, default values, tablix static header properties, report formatting, built in fields, stored procedures, and exporting.
 
-# 7. How to setup the report on your computer
+Excel - exporting, and pivot tables. 
+
+
+# 6. How to Run the Report on Your Computer
+1. [Install a SQL Server instance on your computer. This is a database server that will contain all your databases.](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) I personally use the free developer edition.
+2. [Install Sql Server Management Studio as your client application to manage your SQL Server databases.](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16)
+3. [Download the Adventureworks2019.bak file from microsoft.](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16&tabs=ssms) Make sure you download the OLTP version and not the data warehouse or lightweight versions. This database backup contains the data that the SSRS report pulls from.
+4. [Restore the backup database (Adventureworks2019.bak) to your SQL Server instance.](https://learn.microsoft.com/en-us/sql/relational-databases/backup-restore/restore-a-database-backup-using-ssms?view=sql-server-ver16) If the documentation confuses you, there are a bunch of youtube videos that show this process step by step.
+5. Install Power BI Report Builder, Report Builder, or Visual Studio Community edition with the Data Storage Processing Toolset and the Microsoft Reporting Services Extension. This will allow you to open and edit .rdl files. [Report Builder](https://www.microsoft.com/en-us/download/details.aspx?id=53613) || [Power BI Repoert Builder](https://www.microsoft.com/en-us/download/details.aspx?id=58158) || [Visual Studio](https://visualstudio.microsoft.com/downloads/)
+6. [Download the Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl file from my github.](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl)
+7. Open the Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl file in Report Builder and connect to the AdventureWorks2019 database. 
+
+ 
+ ![This is a picture of connection string to the AdventureWorks2019 Database.](images/ConnectToAdventureWorks2019Database.jpg)
+ 
+
+8. Type in the desired parameters and run the report by clicking view report in the Run View.
+
+
+![This is a picture of the output of the report with the inputs from the parameters above.](images/ReportOutputSSRS.jpg)
+
+
+# 7. Links to code
+* [Create or Alter Stored Procedure](/Multi_Product_Partial_Product_Search_on_Sales_Order_Data_SP.sql)
+* [Execute Stored Procedure](/Exec_Multi_Product_Partial_Search_+_Sales_Order_Info_Stored_Procedure%20AW_2019.sql)
+* [SSMS SQL Query](/Multi_Product_Partial_Search_for_Sales_Data_SSMS_Query_AW_2019.sql)
+* [SSRS Report](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl)
+* [Excel Pivot Report that uses SSRS Report Output](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.xlsx)
+
+
