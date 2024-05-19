@@ -1,0 +1,88 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	The underlying logic for returning the correct item numbers in SSMS (Many values or 0) [Explains line 156 of this query]
+	This AND() clause for filtering item#'s has 2 purposes: Return the listed items or return all items if an empty string is in the list.
+	The WHERE clause ignores all the AND() expressions that evaluate to FALSE and returns all the AND() expressions that return TRUE as it loops through the data.
+	The OR condition returns TRUE if any given argument evaluates to TRUE, and returns FALSE if all supplied arguments evaluate to FALSE. (Just like the Excel Function).
+	You use an empty string ('') to represent the empty item comparision instead of NULL because SSRS cant accept the value NULL for multivalued parameters (Item #).
+	Also, you can't have a value of NULL in the IN() operator in SQL [IN(NULL)]. That is why I switch all NULL(s) to empty strings (''). 
+	You would have to use ISNULL which won't allow you to mix with actual item numbers in the AND() clause. 
+
+	--AND condition to handle multiple items or ALL items in the WHERE clause.
+		and (isnull(ASLS.[Item #],'') in (select [ItemNumber] from #ItemNumberWildcardLoop) or '' in(select [ItemNumber] from ##ItemNumberWildcardLoop) )
+
+
+	Only items in('101-LR','10') are in the #ItemNumberWildcardLoop Temp Table.
+	In the transaction table:
+		Row 1: Item # = 101-LR
+		Row 2: Item # = 12
+		Row 3: Item # = NULL
+		Row 4: Item # = ''
+	Only rows with item(s) in('101-LR','10') can be returned.
+
+	The item number 101-LR for line 1 in ASLS is '101-LR' when given list of 2 items.
+	and( isnull(101-LR,'') in('101-LR','10') or '' in('101-LR','10') )
+		and( 101-LR in(101-LR,'10') or '' in('101-LR','10') )
+		and( TRUE or FALSE )
+		and(TRUE) 
+	Line 1 retuns TRUE 
+
+	The item number 12 for line 2 in ASLS is '12' when given list of 2 items.
+	and( isnull(12,'') in('101-LR','10') or '' in('101-LR','10') )
+		and( 12 in(101-LR,'10') or '' in('101-LR','10') )
+		and( FALSE or FALSE )
+		and(FALSE)
+	Line 2 retuns FALSE 
+
+
+	The item number NULL for line 3 in ASLS is NULL when given list of 2 items.
+		and( isnull(NULL,'') in('101-LR','10') or '' in('101-LR','10') )
+		and( '' in('101-LR','10') or '' in('101-LR','10') )
+		and( FALSE or FALSE )
+		and(FALSE)
+	Line 3 retuns FALSE 
+
+
+	The item number '' for line 4 in ASLS is NULL when given list of 2 items.
+		and( isnull('','') in('101-LR','10') or '' in('101-LR','10') )
+		and( '' in('101-LR','10') or '' in('101-LR','10') )
+		and( FALSE or FALSE )
+		and(FALSE)
+	Line 4 retuns FALSE 
+
+
+	Only item(s) in('') are in the #ItemNumber Temp Table.
+	In the transaction table:
+		Row 1: Item # = 101-LR
+		Row 2: Item # = 12
+		Row 3: Item # = NULL
+		Row 4: Item # = ''
+	Every possible item# will return a value of TRUE in this case.
+
+
+		and( isnull(101-LR,'') in('') or '' in('') )
+		and( 101-LR in('') or '' in('') )
+		and( FALSE or TRUE )
+		and(TRUE)
+	Line 1 retuns TRUE 
+
+
+		and( isnull(12,'') in('') or '' in('') )
+		and( 12 in('') or '' in('') )
+		and( FALSE or TRUE )
+		and(TRUE)
+	Line 2 retuns TRUE 
+
+
+		and( isnull(NULL,'') in('') or '' in('') )
+		and( '' in('') or '' in('') )
+		and( TRUE or TRUE )
+		and(TRUE)
+	Line 3 retuns TRUE 
+
+
+
+		and( isnull('','') in('') or '' in('') )
+		and( '' in('') or '' in('') )
+		and( TRUE or TRUE )
+		and(TRUE)
+	Line 4 retuns TRUE 
