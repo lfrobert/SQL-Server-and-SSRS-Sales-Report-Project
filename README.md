@@ -14,16 +14,16 @@ Important notes: This project requires you to install software on your computer 
 > ## d. Project Requirements
 > 1. Use SSRS as the primary reporting tool so that the end users can export the data that they need.
 > 2. Include the following parameters in the report so that the end users can filter the data:
->> * This grouping of parameter(s) will allow the end user to do 3 things. If you leave the parameter blank, all possible values will return. You can also select multiple valid values. Lastly, it will allow the end user to use wildcard characters(%) to select partial results. For example, if the user enters (BA%,BB%,BE%,BK-R93R-62), the first 3 values have the wildcard symbol so all possible items starting with BA, BB, and BE would be returned. The last value in the selection (BK-R93R-62) is just an item number so only that item will be returned.
+>> * This grouping of parameter(s) will have the wildcard symbol(%) as the default value. This will allow the end user to do 3 things. If you leave the parameter blank, all possible values will return. You can also select multiple valid values. Lastly, it will allow the end user to use wildcard characters(%) to select partial results. For example, if the user enters (BA%,BB%,BE%,BK-R93R-62,FR-\_\_\_\_-60,%-1000,%-[4-5][0-2]), the first 3 values (BA%,BB%,BE%) have the wildcard symbol so all possible items starting with BA, BB, and BE would be returned. The next value in the selection (BK-R93R-62) is just an item number so only that item will be returned. (FR-\_\_\_\_-60) will return all items the begin with FR, have any 4 characters in the middle, & end with -60. (%-1000) will return any products that end with -1000. (%-[4-5][0-2]) will return any products that end with - as the 1st character, 4 or 5 as the 2nd character, & 0,1,or 2 as the 3rd character. Note: If you delete the default value(%) and fail to replace it with a valid value and the report will return a no results because it would be filtering for an invalid condition.
 >>> 1. Product Number Par
->> * This grouping of parameter(s) require the user to input date values and cannot be blank. They should have default values of 1/1/2011 for the Start Date and 12/31/2016 for the end date becuase there is no data outside of that date range. 
+>> * This grouping of parameter(s) require the user to input date values and cannot be blank. They should have default values of 05/31/2011 for the Start Date and 06/30/2014 for the end date becuase there is no data outside of that date range. The defualt values should return the MIN and MAX order dates for the start and end date parameters.
 >>> 1. Start Date
 >>> 1. End Date
 >> * This grouping of parameter(s) will allow the end user to do 2 things.  If you leave the parameter blank, all possible values will return. You can also select a single valid value for each of these parameters to filter down the results further. Wildcard searches will not work.
 >>> 1. Product Subcategory
 >>> 1. Product Category
->>> 1. Customer Account Number
->> * This grouping of parameter(s) will have the wildcard symbol(%) as the default value. This will allow the end user to do 3 things. If you leave the parameter with the default value (%), all possible values will return. You can only entera single valid value for each of these parameters to filter down the results further but you can use wildcard characters(%) to select partial results if you chose to. Note: If you delete the default value(%) and fail to replace it with a valud value, the report will return a no results becuse toy would be filtering for an invalid condition.
+>>> 1. CustomerID
+>> * This grouping of parameter(s) will also have the wildcard symbol(%) as the default value. This will allow the end user to do 3 things. If you leave the parameter with the default value (%), all possible values will return. You can only enter a single valid value for each of these parameters to filter down the results further but you can use wildcard characters(%) to select partial results if you choose to. Note: If you delete the default value(%) and fail to replace it with a valid value and the report will return a no results because it would be filtering for an invalid condition.
 >>> 1. Ship To Address
 >>> 1. Ship To Postal Code
 >>> 1. Ship To Location Type
@@ -85,7 +85,7 @@ Create or Alter Proc dbo.[Multi Product Partial Product Search on Sales Order Da
 	--Exact search or can be empty
 	,@ProductSubcategory as varchar(30)
 	,@ProductCategory as varchar(30)
-	,@CustAccountNumber as varchar(30)
+	,@CustomerID as varchar(30)
 
 	/*
 	Searchable (% wildcard) and can either contain only a (%), a (%) with a partial string, or an exact search.
@@ -108,7 +108,7 @@ as
 
 ## c. Create script that allows user to input any combination of item numbers with and without wildcard characters and returns all matching items from the database.
 Script Overview
-
+Note: There are a lot of commented sections of code left in the scripts that if you were to uncomment, would return values that are used for debugging the script. The names of the queries should tell you what is specifically being returned.
 
 <details>
 <summary>Wildcard Products Code Snippet</summary>
@@ -119,7 +119,7 @@ Script Overview
 ---------------------------------------------------------------------------------------------------------------------
 
 
---select @ProductNumberPar as [Parameter String]
+
 
 CREATE TABLE #ProductNumber ([Product #] VARCHAR(MAX))
 
@@ -130,25 +130,16 @@ CREATE TABLE #ProductNumber ([Product #] VARCHAR(MAX))
 
   WHILE CHARINDEX(',',@ProductNumberPar) <> 0 
   BEGIN
-		--select CHARINDEX(',',@ProductNumberPar) as [While Loop Condition]
 		/*Takes the Parameter String of CSV(s) & inserts the left most Product during each iteration*/
-		--(SELECT LEFT(@ProductNumberPar, CHARINDEX(',',@ProductNumberPar)-1)as [Left Most Product])
     INSERT INTO #ProductNumber VALUES((SELECT LEFT(@ProductNumberPar, CHARINDEX(',',@ProductNumberPar)-1)))
 		/*Takes the Parameter String of CSV(s) & eliminated the left most Product during each iteration*/
-		--(SELECT RIGHT(@ProductNumberPar,LEN(@ProductNumberPar)-CHARINDEX(',',@ProductNumberPar))as [New Parameter String Iteration]) 
     SET @ProductNumberPar = (SELECT RIGHT(@ProductNumberPar,LEN(@ProductNumberPar)-CHARINDEX(',',@ProductNumberPar)))
   END
 
- --select CHARINDEX(',',@ProductNumberPar) as [Last While Loop Condition]
- --select @ProductNumberPar as [Last Product Yet to be Inserted]
- --select [Product #] as [Product Table List Before Last Product is Inserted] from #ProductNumber
 
  /*Inserts the last CSV value into the Temp Table*/
  insert into #ProductNumber values ((select @ProductNumberPar))
---select @ProductNumberPar into #ProductNumber
 
---select [Product #] as [Final Product Table List] from #ProductNumber
---drop table #ProductNumber
 
 
 
@@ -165,10 +156,6 @@ ROW_NUMBER() over(order by #ProductNumber.[Product #]) as [Primary Key]
 into #ProductNumberWithPK
 from #ProductNumber
 
---select [Primary Key] ,[ProductNumber] as [Final Product Table List with Index] from #ProductNumberWithPK
-
---drop table #ProductNumber
---drop table #ProductNumberWithPK
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -177,17 +164,12 @@ from #ProductNumber
 create table #ProductNumberWildcardLoop (ProductNumber varchar (max) )
 
 
---select * from #ProductNumberWithPK
---drop table #ProductNumberWithPK
-
-
 declare @Counter int
 declare @NumOfProducts int
 declare @SelectedProduct varchar(20)
 
 set @Counter = 1
 set @NumOfProducts = (select COUNT(*) from #ProductNumberWithPK)
---print cast(@NumOfProducts as varchar(10) ) + ' Products'
 
 /*
 For each indexed partial Product string in #ProductNumberWithPK,
@@ -197,30 +179,19 @@ insert into #ProductNumberWildcardLoop all Products that contain each partial Pr
 while @Counter <= @NumOfProducts
 	begin
 		set @SelectedProduct = (select #ProductNumberWithPK.ProductNumber from #ProductNumberWithPK where [Primary Key] = @Counter)
-		--print cast(@Counter as varchar(20) ) + ' - ' + @SelectedProduct
-		--select @SelectedProduct as [Nth Product]
 		insert into #ProductNumberWildcardLoop
-		/*
-		select distinct Product numbers from transaction table
-		
-		where [Product #] like '%' + @SelectedProduct + '%' 
-		*/
-		select distinct [ProductNumber] --,[ProductID]
+
+		select distinct [ProductNumber] 
 		FROM [AdventureWorks2019].[Production].[Product] 
 		
-		--where [ProductNumber] like @SelectedProduct
-		where [ProductNumber] like '%' + @SelectedProduct + '%' 
+		where [ProductNumber] like @SelectedProduct
 
 		set @Counter = @Counter + 1
 	end
 
---select #ProductNumberWildcardLoop.ProductNumber as [Final Product List After Wildcard Search] from #ProductNumberWildcardLoop
-
---drop table #ProductNumber
---drop table #ProductNumberWithPK
---drop table #ProductNumberWildcardLoop
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -355,8 +326,6 @@ left join
 	[AdventureWorks2019].[Sales].[Store] as [S]
 on
 	BE.BusinessEntityID = S.BusinessEntityID
---where 
---	[AT].AddressTypeID = 5
 order by 
 	BEA.AddressID 
 
@@ -402,7 +371,8 @@ on
 
 
 -----------------------------------------------------------------------------------------------------
-/*
+
+
 
 
 
@@ -526,7 +496,7 @@ where
 	and
 		(isnull(P.[Category Name],'') = @ProductCategory or '' = @ProductCategory )
 	and
-		(isnull(SOT.[CustomerID],'') = @CustAccountNumber or '' = @CustAccountNumber  )
+		(isnull(SOT.[CustomerID],'') = @CustomerID or '' = @CustomerID  )
 
 
 --Wildcard searches that return all values when empty string is passed to a variable.
@@ -543,8 +513,6 @@ where
 	and
 		(isnull(BillTo.[Name],'') like @BillToLocationType )
 
-	--and
-	--	ShipToAddressID <> BillToAddressID
 order by
 	SOT.SalesOrderID
 	,P.ProductNumber
@@ -554,13 +522,6 @@ order by
 /*
 drop all the temp tables in the stored procedure
 */
-
-drop table #ProductNumberWildcardLoop
-drop table #ProductNumber
-drop table #ProductNumberWithPK
-drop table #SalesOrderTable
-drop table #CustomersTable
-drop table #ProductsTable
 
 drop table #ProductNumberWildcardLoop
 drop table #ProductNumber
@@ -615,8 +576,11 @@ This is a picture of the output of the report in the web portal.
 
 ## k. Create SSMS query that displays the logic of the stored procedure.
 
-![This is a picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works.](images/SSMS%20query%20steps%20for%20SP.jpg)
-This is a picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works.
+![This is the 1st picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works.](images/SSMS%20query%20steps%20for%20SP1.jpg)
+This is the 1st picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works.
+
+![This is the 2nd picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works. The bottom table in this image shows the output of all the steps!](images/SSMS%20query%20steps%20for%20SP2.jpg)
+This is the 2nd picture of the query results window in SSMS that shows each of the steps in the stored procedure process. This allows other analysts with read only access to get an idea of how the stored procedure works. The bottom table in this image shows the output of all the steps!
 
 [Query Link](/Multi_Product_Partial_Search_for_Sales_Data_SSMS_Query_AW_2019.sql)
 
@@ -663,6 +627,7 @@ Excel - exporting, and pivot tables.
 * [Create or Alter Stored Procedure](/Multi_Product_Partial_Product_Search_on_Sales_Order_Data_SP.sql)
 * [Execute Stored Procedure](/Exec_Multi_Product_Partial_Search_+_Sales_Order_Info_Stored_Procedure%20AW_2019.sql)
 * [SSMS SQL Query](/Multi_Product_Partial_Search_for_Sales_Data_SSMS_Query_AW_2019.sql)
+* [Multi Item Partial Search Logic with Items](/Muiti%20Item%20Partial%20Search%20Where%20Clause%20Logic%20with%20Items.txt)
 * [SSRS Report](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.rdl)
 * [Excel Pivot Report that uses SSRS Report Output](/Multi_Product_Partial_Search_for_Sales_Order_Data_SSRS_Report.xlsx)
 

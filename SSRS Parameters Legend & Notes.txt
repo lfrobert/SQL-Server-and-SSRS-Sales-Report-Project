@@ -1,0 +1,20 @@
+Legend:
+•(%) – The parameter input box allows for partial (wildcard) searches. 
+	Note: The parameter input can’t be blank. 
+	If you want to return all values for that field, just leave the default % value in the parameter box.
+	The % symbol is called a wildcard character that allows for partial searches.
+	As an example, for partial Item Number searches, you can type WT% then it will return all items that start with WT like wt101 & wt111.
+	Another example of this is you can type %80 then it will return all items that end with 80 like 41380, 41480, 41580, etc.
+	Then in the same input box below you can type an exact item like 12.
+	This means that in the Item Number parameter, you can use exact and wildcard searches at the same time, which used to be in 2 separate reports.
+	The item Number parameter allows for this mix of exact and partial searches because it allows the user to enter multiple values into the parameter input boxes.
+	Every other parameter with the (%) symbol only allows the user to enter a single value. 
+•(opt.) – The parameter input box is optional and requires no input from the user.
+	If left blank, it will return all values for that field.
+	If you do want to filter the report with it, you can only perform an exact search. 
+•(req.) – The parameter input box requires an exact value for searches and can’t be empty.
+	The Start Date & End Date parameter input boxes are always required to have a valid range of dates that exist in our company’s data.
+	By default, the most recent 6 months is the range of dates when the report is loaded.
+Notes: 
+•For the Item Number Input Box parameter, if you leave an empty string after the list of items, all values will be returned. This is because an empty string will tell the report that the user wants all values to be returned. So, you need to make sure that the blinking text cursor (caret) is immediately after the last item in the list of items and not on the line below!!
+•If there is an additional blank space in any of the other Input Box parameters, SSRS will likely return no results because the parameter input value(s) will either be a valid value plus a blank space which will make it invalid, or an empty string with a space which is also invalid.

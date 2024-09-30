@@ -20,7 +20,7 @@ Create or Alter Proc dbo.[Multi Product Partial Product Search on Sales Order Da
 	--Exact search or can be empty
 	,@ProductSubcategory as varchar(30)
 	,@ProductCategory as varchar(30)
-	,@CustAccountNumber as varchar(30)
+	,@CustomerID as varchar(30)
 
 	/*
 	Searchable (% wildcard) and can either contain only a (%), a (%) with a partial string, or an exact search.
@@ -127,8 +127,8 @@ while @Counter <= @NumOfProducts
 		select distinct [ProductNumber] --,[ProductID]
 		FROM [AdventureWorks2019].[Production].[Product] 
 		
-		--where [ProductNumber] like @SelectedProduct
-		where [ProductNumber] like '%' + @SelectedProduct + '%' 
+		where [ProductNumber] like @SelectedProduct
+		--where [ProductNumber] like '%' + @SelectedProduct + '%' --Old Method
 
 		set @Counter = @Counter + 1
 	end
@@ -410,7 +410,7 @@ where
 	and
 		(isnull(P.[Category Name],'') = @ProductCategory or '' = @ProductCategory )
 	and
-		(isnull(SOT.[CustomerID],'') = @CustAccountNumber or '' = @CustAccountNumber  )
+		(isnull(SOT.[CustomerID],'') = @CustomerID or '' = @CustomerID  )
 
 
 --Wildcard searches that return all values when empty string is passed to a variable.

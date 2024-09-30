@@ -8,8 +8,9 @@
 
 declare @ProductNumberPar as varchar (max)
 
-set @ProductNumberPar = 'BA%,BB%,BE%,BK-R93R-62'
+set @ProductNumberPar = 'BA%,BB%,BE%,BK-R93R-62,FR-____-60,%-1000,%-[4-5][0-2]'
 --set @ProductNumberPar = ''
+--set @ProductNumberPar = '%'
 
 select @ProductNumberPar as [Parameter String]
 
@@ -95,7 +96,8 @@ while @Counter <= @NumOfProducts
 		*/
 		select distinct [ProductNumber] --,[ProductID]
 		FROM [AdventureWorks2019].[Production].[Product] 
-		where [ProductNumber] like '%' + @SelectedProduct + '%' 
+		where [ProductNumber] like  @SelectedProduct 
+		--where [ProductNumber] like '%' + @SelectedProduct + '%' --Old Method
 
 		set @Counter = @Counter + 1
 	end
@@ -271,18 +273,18 @@ on
 declare @StartDate as datetime
 declare @EndDate as datetime
 
-set @StartDate = '2011-01-01'
-set @EndDate = '2016-12-31'
+set @StartDate = '2011-05-31'
+set @EndDate = '2016-06-30'
 
 
 --Exact & can be empty
 declare @ProductSubcategory as varchar(30)
 declare @ProductCategory as varchar(30)
-declare @CustAccountNumber as varchar(30)
+declare @CustomerID as varchar(30)
 
 set @ProductSubcategory = ''
 set @ProductCategory = ''
-set @CustAccountNumber = ''
+set @CustomerID = ''
 
 
 --Searchable (% wildcard) and can be empty. 
@@ -300,7 +302,7 @@ set @ShipToLocationType = '%'
 set @BillToAddress = '%'
 set @BillToPostalCode = '%'
 set @BillToLocationType = '%'
-
+--Make these parameters have default value of '%'
 
 
 
@@ -405,10 +407,10 @@ where
 	and
 		(isnull(P.[Category Name],'') = @ProductCategory or '' = @ProductCategory )
 	and
-		(isnull(SOT.[CustomerID],'') = @CustAccountNumber or '' = @CustAccountNumber  )
+		(isnull(SOT.[CustomerID],'') = @CustomerID or '' = @CustomerID  )
 
 
---Wildcard searches that return all values when empty string  is passed to a variable.
+--Wildcard searches that return all values when '%' is passed to a variable.
 	and
 		(isnull(ShipTo.[AddressLine1],'') like @ShipToAddress )
 	and
